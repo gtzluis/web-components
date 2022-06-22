@@ -6,11 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Date picker</title>
     <script type="module" src="./common.js"></script>
-    <script type="module">
-      import '@vaadin/date-picker';
-    </script>
   </head>
   <body>
     <vaadin-date-picker label="Start date"></vaadin-date-picker>
+
+    <script type="module">
+      import '@vaadin/date-picker';
+
+      const datePicker = document.querySelector('vaadin-date-picker');
+      datePicker.addEventListener('check-validity', e => console.log(e.detail));
+      datePicker.addEventListener('value-changed', e => console.log(e.detail));
+    </script>
   </body>
 </html>

@@ -400,12 +400,10 @@ export const DatePickerMixin = (subclass) =>
           }
         }
 
+        this.__validateAndNotify();
         if (this.inputElement.value === '' && this.__dispatchChange) {
-          this.validate();
           this.value = '';
           this.__dispatchChange = false;
-        } else {
-          this.validate();
         }
       }
     }
@@ -434,6 +432,20 @@ export const DatePickerMixin = (subclass) =>
       super.disconnectedCallback();
 
       this.opened = false;
+    }
+
+    __validateAndNotify() {
+      const isValid = !!this.validate();
+      this.__setInvalid(isValid);
+
+      if (isValid !== this.__preservedValid) {
+        this.dispatchEvent(new CustomEvent('valid', { detail: { isValid: isValid } }));
+      }
+      this.__preservedValid = isValid;
+    }
+
+    __setInvalid(isValid) {
+      this.invalid = !isValid;
     }
 
     /**
@@ -509,12 +521,12 @@ export const DatePickerMixin = (subclass) =>
     }
 
     /**
-     * Returns true if `value` is valid, and sets the `invalid` flag appropriately.
+     * Returns true if `value` is valid.
      *
-     * @return {boolean} True if the value is valid and sets the `invalid` flag appropriately
+     * @return {boolean} True if the value is valid
      */
     validate() {
-      return !(this.invalid = !this.checkValidity());
+      return this.checkValidity();
     }
 
     /**
@@ -669,7 +681,7 @@ export const DatePickerMixin = (subclass) =>
       }
 
       if (value !== this.value) {
-        this.validate();
+        this.__validateAndNotify();
         this.value = value;
       }
       this._ignoreFocusedDateChange = true;
@@ -709,7 +721,7 @@ export const DatePickerMixin = (subclass) =>
       if (!dateEquals(this[property], date)) {
         this[property] = date;
         if (this.value) {
-          this.validate();
+          this.__validateAndNotify();
         }
       }
     }
@@ -835,7 +847,7 @@ export const DatePickerMixin = (subclass) =>
       // No need to revalidate the value after `_selectedDateChanged`
       // Needed in case the value was not changed: open and close dropdown.
       if (!this.value) {
-        this.validate();
+        this.__validateAndNotify();
       }
 
       // If the input isn't focused when overlay closes (fullscreen mode), clear focused state
@@ -916,7 +928,7 @@ export const DatePickerMixin = (subclass) =>
     _onClearButtonClick() {
       this.value = '';
       this._inputValue = '';
-      this.validate();
+      this.__validateAndNotify();
       this.dispatchEvent(new CustomEvent('change', { bubbles: true }));
     }
 
@@ -962,12 +974,12 @@ export const DatePickerMixin = (subclass) =>
             }
             this.close();
           } else if (!isValidDate && this.inputElement.value !== '') {
-            this.validate();
+            this.__validateAndNotify();
           } else {
             const oldValue = this.value;
             this._selectParsedOrFocusedDate();
             if (oldValue === this.value) {
-              this.validate();
+              this.__validateAndNotify();
             }
           }
           break;
