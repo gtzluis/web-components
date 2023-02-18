@@ -569,11 +569,7 @@ class Grid extends ElementMixin(
 
   /** @protected */
   __itemsReceived() {
-    if (
-      this._recalculateColumnWidthOnceLoadingFinished &&
-      !this._cache.isLoading() &&
-      this.__hasRowsWithClientHeight()
-    ) {
+    if (this._recalculateColumnWidthOnceLoadingFinished && !this.loading && this.__hasRowsWithClientHeight()) {
       this._recalculateColumnWidthOnceLoadingFinished = false;
       this.recalculateColumnWidths();
     }
@@ -717,7 +713,7 @@ class Grid extends ElementMixin(
     if (!this._columnTree) {
       return; // No columns
     }
-    if (this._cache.isLoading()) {
+    if (this.loading) {
       this._recalculateColumnWidthOnceLoadingFinished = true;
     } else {
       const cols = this._getColumns().filter((col) => !col.hidden && col.autoWidth);
