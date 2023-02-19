@@ -331,6 +331,7 @@ export const DataProviderMixin = (superClass) =>
     _dataProviderChanged(dataProvider, oldDataProvider) {
       this._dataProviderController.setDataProvider(dataProvider);
       this._hasData = false;
+      this.__updateVisibleRows();
 
       this._ensureFirstPageLoaded();
 

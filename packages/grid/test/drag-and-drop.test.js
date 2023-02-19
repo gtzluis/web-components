@@ -836,6 +836,7 @@ describe('drag and drop', () => {
         grid.dataProvider = (_params, callback) => {
           finishLoadingItems = (items) => callback(items || getTestItems());
         };
+        flushGrid(grid);
       });
 
       it('should disable row drag while loading items', () => {
@@ -957,6 +958,7 @@ describe('drag and drop', () => {
         grid.dataProvider = (_params, callback) => {
           finishLoadingItems = (items) => callback(items || getTestItems());
         };
+        flushGrid(grid);
       });
 
       it('should disable drop on row while loading items', () => {

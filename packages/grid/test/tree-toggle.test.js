@@ -171,6 +171,7 @@ describe('tree toggle', () => {
       it('should have a higher level', () => {
         grid.itemHasChildrenPath = 'hasChildren';
         toggle.expanded = true;
+        flushGrid(grid);
         const childToggle = getBodyCellContent(grid, 1, 0).firstElementChild;
         expect(childToggle.level).to.equal(1);
       });
