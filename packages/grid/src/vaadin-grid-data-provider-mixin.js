@@ -143,7 +143,10 @@ export const DataProviderMixin = (superClass) =>
         },
       });
 
-      this._dataProviderController.addEventListener('items-loaded', this.__onDataProviderControllerItemsLoaded);
+      this._dataProviderController.addEventListener(
+        'items-loaded',
+        this.__onDataProviderControllerItemsLoaded.bind(this),
+      );
     }
 
     /** @private */
