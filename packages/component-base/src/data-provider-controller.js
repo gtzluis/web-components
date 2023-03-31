@@ -32,11 +32,13 @@ export class DataProviderController extends EventTarget {
   setPageSize(pageSize) {
     this.pageSize = pageSize;
     this.clearCache();
+    this.host.requestUpdate();
   }
 
   setDataProvider(dataProvider) {
     this.dataProvider = dataProvider;
     this.clearCache();
+    this.host.requestUpdate();
   }
 
   setExpandedItems(expandedItems) {
@@ -106,12 +108,6 @@ export class DataProviderController extends EventTarget {
       }
 
       cache.setPage(page, items);
-
-      // items.forEach((item) => {
-      //   if (this.expandedItems.includes(item)) {
-      //     this.#ensureItemSubCache(item, cache);
-      //   }
-      // });
 
       this.host.requestUpdate();
 

@@ -160,21 +160,8 @@ export const DataProviderMixin = (superClass) =>
 
       this._hasData = true;
 
-      this._debouncerApplyCachedData = Debouncer.debounce(this._debouncerApplyCachedData, timeOut.after(0), () => {
-        this._setLoading(false);
-
-        this._getVisibleRows().forEach((row) => {
-          const cachedItem = this._dataProviderController.requestEffectiveIndex(row.index);
-          if (cachedItem) {
-            this._getItem(row.index, row);
-          }
-        });
-
-        // this.__scrollToPendingIndexes();
-      });
-
       if (!this._dataProviderController.isLoading) {
-        this._debouncerApplyCachedData.flush();
+        this.__requestUpdateDebouncer.flush();
       }
 
       this.__itemsReceived();
@@ -183,7 +170,15 @@ export const DataProviderMixin = (superClass) =>
     requestUpdate() {
       this.__requestUpdateDebouncer = Debouncer.debounce(this.__requestUpdateDebouncer, timeOut.after(0), () => {
         this._effectiveSize = this._dataProviderController.effectiveSize;
+        this.size = this._dataProviderController.size;
         this.loading = this._dataProviderController.isLoading;
+
+        this._getVisibleRows().forEach((row) => {
+          const cachedItem = this._dataProviderController.requestEffectiveIndex(row.index);
+          if (cachedItem) {
+            this._getItem(row.index, row);
+          }
+        });
       });
     }
 
