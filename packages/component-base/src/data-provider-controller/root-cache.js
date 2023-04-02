@@ -16,23 +16,15 @@ export class RootCache extends Cache {
     return this.#subCacheByItem.get(item);
   }
 
-  createItemSubCache(item, index, parentCache) {
-    const subCache = new Cache(item, parentCache, this, this.pageSize);
+  createItemSubCache(item, parentCache, parentCacheIndex) {
+    const subCache = new Cache(parentCache, parentCacheIndex, this, this.pageSize);
 
-    // Register in the parent cache.
-    parentCache.registerSubCache(subCache, index);
     // Register in the root cache.
     this.#subCacheByItem.set(item, subCache);
 
+    // Register in the parent cache.
+    parentCache.registerSubCache(subCache, parentCacheIndex);
+
     return subCache;
-  }
-
-  removeItemSubCache(item) {
-    const subCache = this.getItemSubCache(item);
-
-    // Unregister from the parent cache.
-    subCache.parentCache.unregisterSubCache(subCache);
-    // Unregister from the root cache.
-    this.#subCacheByItem.delete(item);
   }
 }

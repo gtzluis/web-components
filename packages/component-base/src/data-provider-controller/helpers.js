@@ -1,22 +1,36 @@
 /**
- * @param {number} effectiveIndex
  * @param {import('./cache.js').Cache} cache
+ * @param {number} effectiveIndex
  */
-export function getEffectiveIndexInfo(effectiveIndex, cache, level = 0) {
-  for (const [index, subCache] of cache.subCaches) {
-    if (effectiveIndex <= index) {
+export function getCacheEffectiveIndexInfo(cache, effectiveIndex, level = 0) {
+  let cacheIndex = effectiveIndex;
+
+  for (const [index, subCache] of cache.activeSubCaches) {
+    if (cacheIndex <= index) {
       break;
-    } else if (effectiveIndex <= index + subCache.effectiveSize) {
-      return getEffectiveIndexInfo(effectiveIndex - index - 1, subCache, level + 1);
+    } else if (cacheIndex <= index + subCache.effectiveSize) {
+      return getCacheEffectiveIndexInfo(subCache, cacheIndex - index - 1, level + 1);
     }
-    effectiveIndex -= subCache.effectiveSize;
+    cacheIndex -= subCache.effectiveSize;
   }
 
   return {
-    index: effectiveIndex,
-    item: cache.items[effectiveIndex],
-    page: Math.floor(effectiveIndex / cache.pageSize),
+    cache,
+    cacheIndex,
+    item: cache.items[cacheIndex],
+    page: Math.floor(cacheIndex / cache.pageSize),
     level,
-    parentCache: cache,
   };
+}
+
+/**
+ * @param {import('./cache.js').Cache} cache
+ * @param {number} cacheIndex
+ */
+export function getCacheFlatIndex(cache, cacheIndex) {
+  const clampedIndex = Math.max(0, Math.min(cache.size - 1, cacheIndex));
+
+  return cache.activeSubCaches.reduce((prev, [index, subCache]) => {
+    return clampedIndex > index ? prev + subCache.effectiveSize : prev;
+  }, clampedIndex);
 }

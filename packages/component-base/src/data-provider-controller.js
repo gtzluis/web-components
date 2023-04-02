@@ -1,4 +1,4 @@
-import { getEffectiveIndexInfo } from './data-provider-controller/helpers.js';
+import { getCacheEffectiveIndexInfo } from './data-provider-controller/helpers.js';
 import { RootCache } from './data-provider-controller/root-cache.js';
 
 export class DataProviderController extends EventTarget {
@@ -44,9 +44,11 @@ export class DataProviderController extends EventTarget {
   setExpandedItems(expandedItems) {
     this.expandedItems = expandedItems;
 
-    this.rootCache.getItemSubCaches().forEach(([item, _subCache]) => {
-      if (!this.expandedItems.includes(item)) {
-        this.rootCache.removeItemSubCache(item);
+    this.rootCache.getItemSubCaches().forEach(([item, subCache]) => {
+      if (this.expandedItems.includes(item)) {
+        subCache.activate();
+      } else {
+        subCache.deactivate();
       }
     });
 
@@ -59,20 +61,19 @@ export class DataProviderController extends EventTarget {
   }
 
   getEffectiveIndexInfo(effectiveIndex) {
-    return getEffectiveIndexInfo(effectiveIndex, this.rootCache);
+    return getCacheEffectiveIndexInfo(this.rootCache, effectiveIndex);
   }
 
   requestEffectiveIndex(effectiveIndex) {
-    const { parentCache, page, item, index } = this.getEffectiveIndexInfo(effectiveIndex);
+    const { cache, cacheIndex, page, item } = this.getEffectiveIndexInfo(effectiveIndex);
 
     if (!item) {
-      this.#loadPageIntoCache(page, parentCache);
+      this.#loadPageIntoCache(page, cache);
       return;
     }
 
     if (this.expandedItems.includes(item)) {
-      // Think of how to avoid needing to pass `index`
-      this.#ensureItemSubCache(item, index, parentCache);
+      this.#ensureItemSubCache(item, cache, cacheIndex);
     }
 
     return item;
@@ -120,10 +121,10 @@ export class DataProviderController extends EventTarget {
     this.host.requestUpdate();
   }
 
-  #ensureItemSubCache(item, index, parentCache) {
+  #ensureItemSubCache(item, parentCache, parentCacheIndex) {
     let subCache = this.rootCache.getItemSubCache(item);
     if (!subCache) {
-      subCache = this.rootCache.createItemSubCache(item, index, parentCache);
+      subCache = this.rootCache.createItemSubCache(item, parentCache, parentCacheIndex);
     }
 
     if (!subCache.isPageLoaded(0)) {

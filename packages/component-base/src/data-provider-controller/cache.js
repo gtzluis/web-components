@@ -1,10 +1,25 @@
 export class Cache {
+  /**
+   * An items array.
+   */
   items = [];
+
+  /**
+   * A pending requests map.
+   */
   pendingRequests = new Map();
 
+  /**
+   * Whether the cache is active.
+   *
+   * When a cache is active, it is taken into account
+   * when calculating the effective size.
+   */
+  isActive = true;
+
   // NOTE: It is intentionally defined as an object
-  // to have Object.entries() always index-ordered,
-  // no matter in which sequence the sub-caches were added.
+  // to make Object.entries() return an index-ordered array
+  // no matter in which sequence the keys were actually added.
   #subCacheByIndex = {};
 
   /**
@@ -12,30 +27,24 @@ export class Cache {
    */
   #effectiveSize;
 
-  constructor(parentItem, parentCache, rootCache, pageSize, size) {
-    this.parentItem = parentItem;
+  constructor(parentCache, parentCacheIndex, rootCache, pageSize, size) {
     this.parentCache = parentCache;
+    this.parentCacheIndex = parentCacheIndex;
     this.rootCache = rootCache || this;
     this.pageSize = pageSize;
     this.size = size;
   }
 
   /**
-   * Whether this cache or any of its sub-caches has pending requests.
-   *
-   * @return {boolean}
+   * An item that the cache is associated with.
    */
-  get isLoading() {
-    if (this.pendingRequests.size > 0) {
-      return true;
-    }
-
-    return Object.values(this.#subCacheByIndex).some((subCache) => subCache.isLoading);
+  get parentItem() {
+    return this.parentCache?.items[this.parentCacheIndex];
   }
 
   /**
    * An array of `[index, subCache]` tuples where:
-   * - `index` is the index of an item in this cache's items array.
+   * - `index` is the index of an item in the cache's items array.
    * - `subCache` is a sub-cache associated with that item.
    *
    * The array is index-ordered.
@@ -45,22 +54,22 @@ export class Cache {
    *
    * @return {Array<[number, Cache]>}
    */
-  get subCaches() {
-    return Object.entries(this.#subCacheByIndex).map(([index, subCache]) => {
-      return [parseInt(index), subCache];
-    });
+  get activeSubCaches() {
+    return Object.entries(this.#subCacheByIndex)
+      .filter(([_index, subCache]) => subCache.isActive)
+      .map(([index, subCache]) => [parseInt(index), subCache]);
   }
 
   /**
-   * A memoized sum of this cache's size + its sub-caches' size.
+   * A memoized sum of the cache's size + its active sub-caches' size.
    * To reset the memoized result, `invalidateEffectiveSize()` needs to be called.
    *
    * @return {number}
    */
   get effectiveSize() {
     if (!this.#effectiveSize) {
-      const subCachesEffectiveSize = Object.values(this.#subCacheByIndex).reduce(
-        (total, subCache) => total + subCache.effectiveSize,
+      const subCachesEffectiveSize = this.activeSubCaches.reduce(
+        (total, [_index, subCache]) => total + subCache.effectiveSize,
         0,
       );
 
@@ -68,6 +77,19 @@ export class Cache {
     }
 
     return this.#effectiveSize;
+  }
+
+  /**
+   * Whether the cache or any of its active sub-caches have pending requests.
+   *
+   * @return {boolean}
+   */
+  get isLoading() {
+    if (this.pendingRequests.size > 0) {
+      return true;
+    }
+
+    return this.activeSubCaches.some(([_index, subCache]) => subCache.isLoading);
   }
 
   /**
@@ -123,14 +145,17 @@ export class Cache {
     this.invalidateEffectiveSize();
   }
 
-  unregisterSubCache(subCache) {
-    for (const [index, instance] of Object.entries(this.#subCacheByIndex)) {
-      if (subCache === instance) {
-        delete this.#subCacheByIndex[index];
-        break;
-      }
+  activate() {
+    if (!this.isActive) {
+      this.isActive = true;
+      this.invalidateEffectiveSize();
     }
+  }
 
-    this.invalidateEffectiveSize();
+  deactivate() {
+    if (this.isActive) {
+      this.isActive = false;
+      this.invalidateEffectiveSize();
+    }
   }
 }
