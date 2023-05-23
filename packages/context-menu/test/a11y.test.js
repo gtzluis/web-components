@@ -1,8 +1,10 @@
 import { expect } from '@esm-bundle/chai';
 import { aTimeout, fixtureSync, oneEvent } from '@vaadin/testing-helpers';
+import { sendKeys } from '@web/test-runner-commands';
 import './not-animated-styles.js';
 import '../vaadin-context-menu.js';
 import { getDeepActiveElement } from '@vaadin/a11y-base/src/focus-utils.js';
+import { getMenuItems } from './helpers.js';
 
 describe('a11y', () => {
   describe('focus restoration', () => {
@@ -14,7 +16,7 @@ describe('a11y', () => {
           <button>Open context menu</button>
         </vaadin-context-menu>
       `);
-      contextMenu.items = [{ text: 'Menu Item' }];
+      contextMenu.items = [{ text: 'Item 0' }, { text: 'Item 1', children: [{ text: 'Item 1/0' }] }];
       button = contextMenu.querySelector('button');
       overlay = contextMenu.$.overlay;
       button.focus();
@@ -22,15 +24,29 @@ describe('a11y', () => {
 
     it('should move focus to the menu on open', async () => {
       button.click();
-      await oneEvent(overlay, 'vaadin-overlay-open');
-      const menuItem = overlay.querySelector('[role=menuitem]');
+      await oneEvent(contextMenu.$.overlay, 'vaadin-overlay-open');
+      const menuItem = getMenuItems(contextMenu)[0];
       expect(getDeepActiveElement()).to.equal(menuItem);
     });
 
-    it('should restore focus on menu close', async () => {
+    it('should restore focus on root menu item selection', async () => {
       button.click();
-      await oneEvent(overlay, 'vaadin-overlay-open');
-      contextMenu.close();
+      await oneEvent(contextMenu.$.overlay, 'vaadin-overlay-open');
+      // Select Item 0
+      await sendKeys({ press: 'Enter' });
+      await aTimeout(0);
+      expect(getDeepActiveElement()).to.equal(button);
+    });
+
+    it('should restore focus on sub menu item selection', async () => {
+      button.click();
+      await oneEvent(contextMenu.$.overlay, 'vaadin-overlay-open');
+      // Move focus to Item 1
+      await sendKeys({ press: 'ArrowDown' });
+      // Open Item 1
+      await sendKeys({ press: 'ArrowRight' });
+      // Select Item 1/1
+      await sendKeys({ press: 'Enter' });
       await aTimeout(0);
       expect(getDeepActiveElement()).to.equal(button);
     });
