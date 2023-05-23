@@ -6,6 +6,7 @@ snapshots["context-menu items"] =
   dir="ltr"
   id="overlay"
   opened=""
+  restore-focus-on-close=""
 >
   <vaadin-context-menu-list-box
     aria-orientation="vertical"
@@ -54,6 +55,7 @@ snapshots["context-menu items nested"] =
   id="overlay"
   modeless=""
   opened=""
+  restore-focus-on-close=""
   right-aligned=""
   start-aligned=""
   top-aligned=""
@@ -93,6 +95,7 @@ snapshots["context-menu items overlay class"] =
   dir="ltr"
   id="overlay"
   opened=""
+  restore-focus-on-close=""
 >
   <vaadin-context-menu-list-box
     aria-orientation="vertical"
@@ -142,6 +145,7 @@ snapshots["context-menu items overlay class nested"] =
   id="overlay"
   modeless=""
   opened=""
+  restore-focus-on-close=""
   right-aligned=""
   start-aligned=""
   top-aligned=""
