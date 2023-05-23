@@ -121,13 +121,17 @@ export const MenuOverlayMixin = (superClass) =>
     }
 
     /**
+     * Overriding the method from OverlayFocusMixin to disable
+     * focus restoration on sub-menu overlay close. Focus should
+     * be only restored when the root menu closes.
+     *
      * @protected
      * @override
+     * @return {boolean}
      */
     _shouldRestoreFocus() {
       if (this.parentOverlay) {
         // Do not restore focus on sub-menu close.
-        // Focus should be only restored when the root menu closes.
         return false;
       }
 
@@ -135,15 +139,21 @@ export const MenuOverlayMixin = (superClass) =>
     }
 
     /**
+     * Overriding the method from OverlayFocusMixin to return
+     * true if the overlay contains the given node, including
+     * those within descendant menu overlays.
+     *
      * @protected
      * @override
+     * @param {Node} node
+     * @return {boolean}
      */
     _deepContains(node) {
-      // Find the closest overlay for the given node.
+      // Find the closest menu overlay for the given node.
       let overlay = getClosestElement(this.localName, node);
       while (overlay) {
         if (overlay === this) {
-          // The node is inside one of the descendant overlays.
+          // The node is inside a descendant menu overlay.
           return true;
         }
 

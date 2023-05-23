@@ -151,4 +151,25 @@ export const OverlayFocusMixin = (superClass) =>
         this.__restoreFocusRingNode = null;
       }
     }
+
+    /**
+     * Returns true if the overlay contains the given node,
+     * including those within shadow DOM trees.
+     *
+     * @param {Node} node
+     * @return {boolean}
+     * @protected
+     */
+    _deepContains(node) {
+      if (this.contains(node)) {
+        return true;
+      }
+      let n = node;
+      const doc = node.ownerDocument;
+      // Walk from node to `this` or `document`
+      while (n && n !== doc && n !== this) {
+        n = n.parentNode || n.host;
+      }
+      return n === this;
+    }
   };
