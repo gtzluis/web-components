@@ -1,5 +1,5 @@
 import { expect } from '@esm-bundle/chai';
-import { aTimeout, fixtureSync, oneEvent } from '@vaadin/testing-helpers';
+import { aTimeout, fixtureSync, nextRender, oneEvent } from '@vaadin/testing-helpers';
 import { sendKeys } from '@web/test-runner-commands';
 import './not-animated-styles.js';
 import '../vaadin-context-menu.js';
@@ -24,30 +24,31 @@ describe('a11y', () => {
 
     it('should move focus to the menu on open', async () => {
       button.click();
-      await oneEvent(contextMenu.$.overlay, 'vaadin-overlay-open');
+      await nextRender();
       const menuItem = getMenuItems(contextMenu)[0];
       expect(getDeepActiveElement()).to.equal(menuItem);
     });
 
     it('should restore focus on root menu item selection', async () => {
       button.click();
-      await oneEvent(contextMenu.$.overlay, 'vaadin-overlay-open');
+      await nextRender();
       // Select Item 0
       await sendKeys({ press: 'Enter' });
-      await aTimeout(0);
+      await nextRender();
       expect(getDeepActiveElement()).to.equal(button);
     });
 
     it('should restore focus on sub menu item selection', async () => {
       button.click();
-      await oneEvent(contextMenu.$.overlay, 'vaadin-overlay-open');
+      await nextRender();
       // Move focus to Item 1
       await sendKeys({ press: 'ArrowDown' });
       // Open Item 1
       await sendKeys({ press: 'ArrowRight' });
+      await nextRender();
       // Select Item 1/1
       await sendKeys({ press: 'Enter' });
-      await aTimeout(0);
+      await nextRender();
       expect(getDeepActiveElement()).to.equal(button);
     });
   });

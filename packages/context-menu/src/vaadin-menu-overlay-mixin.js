@@ -3,6 +3,7 @@
  * Copyright (c) 2016 - 2023 Vaadin Ltd.
  * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
  */
+import { getClosestElement } from '@vaadin/component-base/src/dom-utils.js';
 import { PositionMixin } from '@vaadin/overlay/src/vaadin-overlay-position-mixin.js';
 
 /**
@@ -29,6 +30,8 @@ export const MenuOverlayMixin = (superClass) =>
     /** @protected */
     ready() {
       super.ready();
+
+      this.restoreFocusOnClose = true;
 
       this.addEventListener('keydown', (e) => {
         if (!e.defaultPrevented && e.composedPath()[0] === this.$.overlay && [38, 40].indexOf(e.keyCode) > -1) {
@@ -115,5 +118,39 @@ export const MenuOverlayMixin = (superClass) =>
           this.style.top = `${parseFloat(this.style.top) - parseFloat(style.paddingTop)}px`;
         }
       }
+    }
+
+    /**
+     * @protected
+     * @override
+     */
+    _shouldRestoreFocus() {
+      if (this.parentOverlay) {
+        // Do not restore focus on sub-menu close.
+        // Focus should be only restored when the root menu closes.
+        return false;
+      }
+
+      return super._shouldRestoreFocus();
+    }
+
+    /**
+     * @protected
+     * @override
+     */
+    _deepContains(node) {
+      // Find the closest overlay for the given node.
+      let overlay = getClosestElement(this.localName, node);
+      while (overlay) {
+        if (overlay === this) {
+          // The node is inside one of the descendant overlays.
+          return true;
+        }
+
+        // Traverse the overlay hierarchy to check parent overlays.
+        overlay = overlay.parentOverlay;
+      }
+
+      return false;
     }
   };

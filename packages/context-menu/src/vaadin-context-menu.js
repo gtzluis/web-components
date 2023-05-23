@@ -230,7 +230,6 @@ class ContextMenu extends OverlayClassMixin(
         phone$="[[_phone]]"
         model="[[_context]]"
         theme$="[[_theme]]"
-        restore-focus-on-close
       ></vaadin-context-menu-overlay>
     `;
   }
