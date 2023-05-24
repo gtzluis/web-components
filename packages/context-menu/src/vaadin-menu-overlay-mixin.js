@@ -122,7 +122,7 @@ export const MenuOverlayMixin = (superClass) =>
     }
 
     /**
-     * Overriding the method from OverlayFocusMixin to disable
+     * Override method inherited from `OverlayFocusMixin` to disable
      * focus restoration on sub-menu overlay close. Focus should
      * be only restored when the root menu closes.
      *
