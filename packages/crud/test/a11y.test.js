@@ -11,8 +11,7 @@ describe('a11y', () => {
     let newButton, overlay;
 
     beforeEach(async () => {
-      crud = fixtureSync('<vaadin-crud style="width: 300px;"></vaadin-crud>');
-      crud.items = [{ name: 'John' }];
+      crud = fixtureSync('<vaadin-crud></vaadin-crud>');
       overlay = crud.$.dialog.$.overlay;
       newButton = crud.querySelector('[slot=new-button]');
       newButton.focus();
