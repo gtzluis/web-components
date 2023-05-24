@@ -140,7 +140,7 @@ export const MenuOverlayMixin = (superClass) =>
     }
 
     /**
-     * Overriding the method from OverlayFocusMixin to return
+     * Override method inherited from `OverlayFocusMixin` to return
      * true if the overlay contains the given node, including
      * those within descendant menu overlays.
      *
