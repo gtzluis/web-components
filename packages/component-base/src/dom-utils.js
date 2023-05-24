@@ -47,7 +47,7 @@ export function getAncestorRootNodes(node) {
  * @return {Node | null}
  */
 export function getClosestElement(selector, node) {
-  if (node === document || node === window) {
+  if (!node || node === document || node === window) {
     return false;
   }
 
