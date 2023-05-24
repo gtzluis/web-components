@@ -41,20 +41,6 @@ export function getAncestorRootNodes(node) {
 }
 
 /**
- *
- * @param {string} selector
- * @param {Node} node
- * @return {Node | null}
- */
-export function getClosestElement(selector, node) {
-  if (!node || node === document || node === window) {
-    return false;
-  }
-
-  return node.closest(selector) || getClosestElement(selector, node.getRootNode().host);
-}
-
-/**
  * Takes a string with values separated by space and returns a set the values
  *
  * @param {string} value
