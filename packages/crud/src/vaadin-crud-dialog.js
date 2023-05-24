@@ -138,6 +138,7 @@ class CrudDialog extends Dialog {
         with-backdrop="[[!modeless]]"
         resizable$="[[resizable]]"
         focus-trap
+        restore-focus-on-close
       ></vaadin-crud-dialog-overlay>
     `;
   }
