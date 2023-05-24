@@ -4,13 +4,14 @@
  * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
  */
 import { getClosestElement } from '@vaadin/component-base/src/dom-utils.js';
+import { OverlayFocusMixin } from '@vaadin/overlay/src/vaadin-overlay-focus-mixin.js';
 import { PositionMixin } from '@vaadin/overlay/src/vaadin-overlay-position-mixin.js';
 
 /**
  * @polymerMixin
  */
 export const MenuOverlayMixin = (superClass) =>
-  class MenuOverlayMixin extends PositionMixin(superClass) {
+  class MenuOverlayMixin extends OverlayFocusMixin(PositionMixin(superClass)) {
     static get properties() {
       return {
         /**
